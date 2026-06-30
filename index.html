@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Be-connected</title>
+    <style>
+        body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: #05070F; color: #E2E8F0; display: flex; flex-direction: column; height: 100vh; }
+        .nav-bar { background: #0B0E17; padding: 15px 20px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #1F2937; }
+        .logo { font-size: 16px; margin: 0; font-weight: bold; color: #22D3EE; text-shadow: 0 0 8px rgba(34, 211, 238, 0.3); }
+        .chat-container { flex-grow: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 12px; }
+        .msg-bubble { background: #111625; border: 1px solid #1F2937; padding: 12px; border-radius: 12px; max-width: 70%; align-self: flex-start; }
+        .msg-bubble.own { background: #1E1B4B; border-color: #4338CA; align-self: flex-end; }
+        .msg-user { font-size: 11px; color: #A855F7; font-weight: bold; margin-bottom: 4px; }
+        .msg-time { font-size: 9px; color: #64748B; margin-top: 6px; text-align: right; }
+        .msg-bubble.disappearing { border-color: #F43F5E; box-shadow: 0 0 8px rgba(244, 63, 94, 0.15); }
+        .ghost-badge { font-size: 9px; color: #F43F5E; font-weight: bold; margin-bottom: 4px; display: block; }
+        .msg-media { max-width: 100%; max-height: 250px; border-radius: 8px; margin-top: 5px; }
+        audio { margin-top: 5px; display: block; width: 240px; height: 35px; }
+        .input-panel { background: #0B0E17; padding: 15px; border-top: 1px solid #1F2937; display: flex; flex-direction: column; gap: 10px; }
+        .controls-row { display: flex; gap: 10px; align-items: center; }
+        input[type="text"] { flex-grow: 1; background: #030408; border: 1px solid #374151; padding: 12px; border-radius: 8px; color: white; outline: none; font-size: 14px; }
+        .btn { border: none; padding: 10px 16px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 13px; display: inline-flex; align-items: center; gap: 6px; color: white; }
+        .btn-cyan { background: #0891B2; }
+        .btn-ghost { background: #1F2937; color: #94A3B8; }
+        .btn-ghost.active { background: #E11D48; color: white; box-shadow: 0 0 10px rgba(225, 29, 72, 0.4); }
+        .btn-audio.recording { background: #EF4444; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+        .hidden-loader { display: none; }
+    </style>
+</head>
+<body>
+
+    <div class="nav-bar">
+        <h2 class="logo">⚡ BE-CONNECTED</h2>
+        <div style="display: flex; gap: 10px; align-items: center;">
+            <input type="text" id="usernameInput" placeholder="Set Handle Name" style="width: 120px; padding: 6px; background: #030408; border: 1px solid #374151; color: white; border-radius: 6px;" value="User_Node">
+            <button class="btn btn-ghost" id="ghostToggle" onclick="toggleGhostMode()">👻 Disappearing Off</button>
+        </div>
+    </div>
+
+    <div class="chat-container" id="chatStreamBox"></div>
+
+    <div class="input-panel">
+        <div class="controls-row">
+            <input type="text" id="messageInput" placeholder="Broadcast transmission data nodes...">
+            <button class="btn btn-cyan" onclick="sendTextMessage()">Send ➡️</button>
+        </div>
+        <div class="controls-row" style="justify-content: flex-start; font-size: 12px;">
+            <label class="btn btn-ghost">🖼️ Attach Media <input type="file" id="mediaAssetFile" class="hidden-loader" onchange="uploadMediaAsset(event)"></label>
+            <button class="btn btn-ghost" id="audioRecordBtn" onclick="toggleVoiceCapture()">🎙️ Record Voice</button>
+        </div>
+    </div>
+
+    <script type="module" src="./app.js"></script>
+</body>
+</html>
