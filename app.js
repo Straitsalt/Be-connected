@@ -1,10 +1,32 @@
 import { db, storage, collection, addDoc, onSnapshot, query, orderBy, deleteDoc, doc, ref, uploadBytes, getDownloadURL } from "./firebase-config.js";
 
+// 🛡️ SECURITY LAYER PASSCODES (Change these values to whatever you want!)
+const FRIENDS_ACCESS_PASSCODE = "CSK_2026_WIN"; 
+const MASTER_ADMIN_PIN = "ADMIN_MATRIX_99";
+
 let isGhostModeActive = false;
 let mediaRecorderInstance = null;
 let recordedAudioChunks = [];
 
+// 🔒 GATEWAY ENGINE: Prompts for password before letting user into the chat matrix
 window.onload = () => {
+    let sessionKey = localStorage.getItem("chat_authorized");
+    
+    while (sessionKey !== FRIENDS_ACCESS_PASSCODE) {
+        let entryPrompt = prompt("🛡️ Enter Be-connected Access Passcode:");
+        if (entryPrompt === FRIENDS_ACCESS_PASSCODE) {
+            localStorage.setItem("chat_authorized", FRIENDS_ACCESS_PASSCODE);
+            sessionKey = FRIENDS_ACCESS_PASSCODE;
+        } else if (entryPrompt === null) {
+            // User hit cancel
+            document.body.innerHTML = `<div style="color: #EF4444; padding: 40px; text-align: center; font-family: sans-serif;"><h3>Access Denied</h3>Refresh the page to try again.</div>`;
+            return;
+        } else {
+            alert("❌ Access Denied: Incorrect Link Code.");
+        }
+    }
+    
+    // If authorization passes, initialize listener stream connection
     subscribeToLiveChatStream();
 };
 
@@ -140,6 +162,36 @@ window.toggleVoiceCapture = async () => {
         recBtn.innerText = "🛑 Stop Recording";
         recBtn.classList.add('recording');
     } catch (err) { alert("Mic hardware channel access denied."); }
+};
+
+// 💥 ADMINISTRATIVE PURGE LAYER: Deletes database history instantly
+window.triggerAdminPurge = async () => {
+    let verification = prompt("🔒 Enter Master Admin Clearance Pin to Wipe Chat:");
+    if (verification !== MASTER_ADMIN_PIN) {
+        alert("❌ Access Denied: Invalid Administrative Credentials.");
+        return;
+    }
+
+    if (!confirm("⚠️ WARNING: This will permanently wipe the entire conversation history for everyone. Proceed?")) return;
+
+    const chatBox = document.getElementById('chatStreamBox');
+    chatBox.innerHTML = '<div style="color: #EF4444; text-align: center; font-weight: bold;">Executing Data Purge...</div>';
+
+    try {
+        const { getDocs } = await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js");
+        const querySnapshot = await getDocs(collection(db, "messages"));
+        
+        const deletePromises = [];
+        querySnapshot.forEach((entry) => {
+            deletePromises.push(deleteDoc(doc(db, "messages", entry.id)));
+        });
+
+        await Promise.all(deletePromises);
+        alert("💥 Success: Chat database completely wiped clear.");
+    } catch (err) {
+        console.error(err);
+        alert("Execution Error: Could not clear database documents.");
+    }
 };
 
 function escapeHTML(str) {
